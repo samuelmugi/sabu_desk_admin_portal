@@ -6,14 +6,13 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import useState from 'react-usestateref';
-import {Button, Divider, Dropdown, Form, Icon, Label, List, Popup} from 'semantic-ui-react';
+import {Button, Form, Popup} from 'semantic-ui-react';
 import Aux from '../../hoc/_Aux';
 import BackendService from "../../services/BackendService";
-import {Col, Row} from "react-bootstrap";
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
-
-const MySwal = withReactContent(Swal);
+import LoadingOverlay from 'react-loading-overlay'
+import ClipLoader from "react-spinners/PropagateLoader";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 const FETCH_LDAP_DETAILS = process.env.REACT_APP_KB_PORTAL_USER_FETCHADDETIALS;
 const CREATE_USER = process.env.REACT_APP_KB_PORTAL_USER_CREATE;
 const UPDATE_USER = process.env.REACT_APP_KB_PORTAL_USER_UPDATE;
@@ -40,14 +39,17 @@ const useStyles = makeStyles((theme) => ({
 
 const AddVacancy = (props) => {
     const classes = useStyles();
+    const [loading, setLoading, loadingRef] = useState(false);
+    const [color, setColor] = useState("#60991f");
     const [open, setOpen] = useState(false);
+    const [startDate, setStartDate] = useState(new Date());
     const [mounted, setMount] = useState(false);
     const [fullWidth, setFullWidth] = useState(true);
     const [maxWidth, setMaxWidth] = useState('sm');
     const [allRoles, setAllRoles, allRolesref] = useState(props?.allRoles);
     const [isSubmitted, setSubmitted, isSubmittedRef] = useState(false);
     const [rolePermissions, setRolePermissions, rolePermissionsRef] = useState([]);
-    const [userValuesErrors, setVacancyValuesErrors, userValuesErrorsRef] = useState({
+    const [userValuesErrors, setJobGroupValuesErrors, userValuesErrorsRef] = useState({
         username: '',
         email: '',
         firstName: '',
@@ -55,7 +57,7 @@ const AddVacancy = (props) => {
         userRole: '',
         userStatus: ''
     });
-    const [userValues, setVacancyValues, userValuesRef] = useState(props?.valueIntoModal);
+    const [userValues, setJobGroupValues, userValuesRef] = useState(props?.valueIntoModal);
     useEffect(() => {
         (async function () {
             if (props.action === 'edit') {
@@ -66,12 +68,12 @@ const AddVacancy = (props) => {
     }, [userValues]);
 
     const changeHandler = (e) => {
-        setVacancyValues((prevValues) => {
+        setJobGroupValues((prevValues) => {
             return {...prevValues, [e.target.name]: e.target.value};
         });
     };
-    const updateVacancyValues = (name, value) => {
-        setVacancyValues((prevValues) => {
+    const updateJobGroupValues = (name, value) => {
+        setJobGroupValues((prevValues) => {
             return {...prevValues, [name]: value};
         });
     };
@@ -80,7 +82,7 @@ const AddVacancy = (props) => {
 
         const user = userValuesRef.current;
         const userErrors = userValuesErrorsRef.current;
-        setVacancyValuesErrors({
+        setJobGroupValuesErrors({
             username: '',
             email: '',
             firstName: '',
@@ -91,7 +93,7 @@ const AddVacancy = (props) => {
         Object.keys(userErrors).map((key) => {
             if (user[key] === null || user[key] === '' || user[key] === undefined) {
                 console.log(key + ' key and value is ' + user[key]);
-                setVacancyValuesErrors((prevValues) => {
+                setJobGroupValuesErrors((prevValues) => {
                     return {...prevValues, [key]: key + ' is required'};
                 });
                 hasErrors = true
@@ -101,7 +103,7 @@ const AddVacancy = (props) => {
 
         return hasErrors;
     }
-    const saveVacancy = async (e) => {
+    const saveJobGroup = async (e) => {
         e.preventDefault();
         setSubmitted(true);
         const hasErrors = validateValues();
@@ -131,7 +133,7 @@ const AddVacancy = (props) => {
     const resetBtn = async () => {
         setSubmitted(false);
         setRolePermissions([]);
-        setVacancyValues({
+        setJobGroupValues({
             username: '',
             email: '',
             firstName: '',
@@ -139,7 +141,7 @@ const AddVacancy = (props) => {
             userRole: '',
             userStatus: ''
         });
-        setVacancyValuesErrors({
+        setJobGroupValuesErrors({
             username: '',
             email: '',
             firstName: '',
@@ -157,16 +159,16 @@ const AddVacancy = (props) => {
             );
             const data = JSON.parse(response.data?.payload);
             const username = data?.accountname;
-            updateVacancyValues('username', username);
+            updateJobGroupValues('username', username);
 
             const firstname = data?.firstname;
-            updateVacancyValues('firstName', firstname);
+            updateJobGroupValues('firstName', firstname);
 
             const email = data?.email;
-            updateVacancyValues('email', email);
+            updateJobGroupValues('email', email);
 
             const lastname = data?.lastname;
-            updateVacancyValues('lastName', lastname);
+            updateJobGroupValues('lastName', lastname);
 
             console.log('userValuesRef==' + JSON.stringify(userValuesRef.current));
         } catch (e) {
@@ -176,7 +178,7 @@ const AddVacancy = (props) => {
 
     const handleRoleChange = async (e, {value}) => {
         setRolePermissions(JSON.parse(value)?.permissions);
-        updateVacancyValues('userRole', JSON.parse(value));
+        updateJobGroupValues('userRole', JSON.parse(value));
     };
     const handleClickOpen = () => {
         setOpen(true);
@@ -202,12 +204,11 @@ const AddVacancy = (props) => {
         <Aux>
             <React.Fragment>
                 <Popup
-                    content={props?.action === 'add' ? "Add Vacancy" : "Edit Vacancy"}
+                    content={props?.action === 'add' ? "Add Job Vacancy" : "Edit Job Vacancy"}
                     trigger={
                         (props?.action === 'add'
                             ? (<Button positive onClick={handleClickOpen} icon="add"/>)
                             : (<Button onClick={handleClickOpen} icon="edit"/>))
-
                     }
                 />
 
@@ -219,144 +220,50 @@ const AddVacancy = (props) => {
                     open={open}
                     onClose={handleClose}
                     aria-labelledby="max-width-dialog-title"
+                ><LoadingOverlay
+                    active={loadingRef.current}
+                    spinner={<ClipLoader color={color} loading={loadingRef.current}/>}
                 >
                     <DialogTitle
-                        id="max-width-dialog-title">{props?.action === 'add' ? "Add Vacancy" : "Edit Vacancy"}</DialogTitle>
+                        id="max-width-dialog-title">{props?.action === 'add' ? "Add Job Vacancy" : "Edit Job Vacancy"}</DialogTitle>
                     <DialogContent>
-                        <Row>
-                            <Col>
-                                <Form>
-                                    <Form.Group>
-                                        <Form.Input
-                                            label="Windows Vacancyname"
-                                            placeholder="Windows Vacancyname"
-                                            name="username"
-                                            error={userValuesErrorsRef.current?.username === '' ? false : {
-                                                content: userValuesErrorsRef.current?.username,
-                                                pointing: 'below'
-                                            }}
-                                            value={userValuesRef.current?.username}
-                                            onChange={changeHandler}
-                                        />
-                                        <Form.Button
-                                            positive
-                                            label="Fetch A.D. Vacancy Details..."
-                                            content="Fetch..."
-                                            onClick={fetchADDetails}
-                                        />
-
-                                    </Form.Group>
-                                </Form>
-                            </Col>
-                        </Row>
-                        <Divider/>
                         <Form>
-                            <Row>
-                                <Col>
-                                    <Form.Input
-                                        fluid
-                                        label="First name"
-                                        placeholder="First name"
-                                        name="firstName"
-                                        error={userValuesErrorsRef.current?.firstName === '' ? false : {
-                                            content: userValuesErrorsRef.current?.firstName,
-                                            pointing: 'below'
-                                        }} value={userValuesRef.current?.firstName}
-                                        onChange={changeHandler}
+                            <Form.Group widths='equal'>
+                                <Form.Input
+                                    label="Job Position"
+                                    placeholder="Job Position"
+                                    name="groupname"
+                                />
+                            </Form.Group>
+                            <Form.Group widths='equal'>
+                                <Form.Input
+                                    label="Openings Available"
+                                    placeholder="Openings Available"
+                                    name="jobgroupdescription"
+                                />
+                                <Form.Field>
+                                    Deadline <br/>
+                                    <DatePicker
+                                        selected={startDate}
+                                        onChange={(date) => setStartDate(date)}
+                                        showYearDropdown
+                                        showMonthYearDropdown
+                                        useShortMonthInDropdown
                                     />
-                                </Col>
-                                <Col>
-                                    <Form.Input
-                                        fluid
-                                        label="Last name"
-                                        placeholder="Last name"
-                                        name="lastName"
-                                        error={userValuesErrorsRef.current?.lastName === '' ? false : {
-                                            content: userValuesErrorsRef.current?.lastName,
-                                            pointing: 'below'
-                                        }} value={userValuesRef.current?.lastName}
-                                        onChange={changeHandler}
-                                    />
-                                </Col>
-                            </Row>
-
-                            <Divider/>
-                            <Row>
-                                <Col>
-                                    <Form.Input
-                                        fluid
-                                        label="Email"
-                                        placeholder="Email"
-                                        name="email"
-                                        error={userValuesErrorsRef.current?.email === '' ? false : {
-                                            content: userValuesErrorsRef.current?.email,
-                                            pointing: 'below'
-                                        }} value={userValuesRef.current?.email}
-                                        onChange={changeHandler}
-                                    />
-                                </Col>
-                                <Col>
-                                    <Label>
-                                        Vacancy Status
-                                    </Label>
-                                    <Dropdown
-                                        placeholder="Vacancy Status"
-                                        name="userStatus"
-                                        validators={['required']}
-                                        onChange={(e, {value}) => {
-                                            setVacancyValues((prevValues) => {
-                                                return {...prevValues, userStatus: value};
-                                            })
-                                        }}
-                                        defaultValue={userValuesRef.current?.userStatus}
-                                        error={userValuesErrorsRef.current?.userStatus === '' ? false : true}
-                                        selection
-                                        options={[{key: 'active', value: true, text: 'Active'}, {
-                                            key: 'inactive', value: false, text: 'In-Active'
-                                        }]}
-                                    />
-                                </Col>
-                            </Row>
-                            <Divider/>
-                            <Row>
-                                <Col>
-                                    <Label>
-                                        Vacancy Role
-                                    </Label>
-                                    <Dropdown
-                                        placeholder="Vacancy Role"
-                                        name="userRole"
-                                        search
-                                        error={userValuesErrorsRef.current?.userRole === '' ? false : true}
-                                        selection
-                                        defaultValue={JSON.stringify(userValuesRef.current?.userRole)}
-
-                                        onChange={handleRoleChange}
-                                        options={allRolesref.current}
-                                    />
-                                </Col>
-                                <Col>
-                                    <List>
-                                        {rolePermissionsRef.current && (rolePermissionsRef.current.map((role, index) => {
-                                            const key = index + (new Date()).getTime().toString(36) + JSON.parse(role)?.perm;
-                                            return (
-                                                <>
-                                                    <List.Item key={stringToHash(key)} as='a'>
-                                                        <Icon name='check circle'/>
-                                                        <List.Content key={key}>
-                                                            <List.Header>{JSON.parse(role)?.perm}</List.Header>
-                                                        </List.Content>
-                                                    </List.Item>
-                                                </>
-                                            )
-                                        }))
-                                        }
-
-                                    </List>
-                                </Col>
-
-                            </Row>
-                            <Divider/>
+                                </Form.Field>
+                            </Form.Group>
+                            <Form.Group widths='equal'>
+                                <Form.Input
+                                    label="Town"
+                                    placeholder="Town"
+                                    name="MinSalary"
+                                />
+                                <Form.Input
+                                    label="Status"
+                                    placeholder="Status"
+                                    name="MaxSalary"
+                                />
+                            </Form.Group>
 
                         </Form>
 
@@ -366,7 +273,7 @@ const AddVacancy = (props) => {
                             <Button
                                 disabled={isSubmittedRef.current}
                                 type="submit"
-                                onClick={saveVacancy}
+                                onClick={saveJobGroup}
                                 positive
                             >
                                 Save
@@ -377,6 +284,7 @@ const AddVacancy = (props) => {
                             </Button>
                         </Button.Group>
                     </DialogActions>
+                </LoadingOverlay>
                 </Dialog>
             </React.Fragment>
         </Aux>

@@ -1,5 +1,5 @@
 module.exports = Object.freeze({
-    tableColumns: [
+    tableColumnsUsers: [
         {id: 'username', label: 'username', minWidth: 170},
         {id: 'firstName', label: 'firstName', minWidth: 170},
         {id: 'lastName', label: 'lastName', minWidth: 170},
@@ -17,5 +17,10 @@ module.exports = Object.freeze({
             minWidth: 170,
             format: (value) => value?.name
         }
+    ],
+    tableColumnsUserGroups: [
+        {id: 'Name', label: 'name', minWidth: 170},
+        {id: 'Status', label: 'Status', minWidth: 170},
+
     ]
 });

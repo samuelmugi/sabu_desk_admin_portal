@@ -15,6 +15,9 @@ const JobShortlist = React.lazy(() => import('./jdcomponents/JobShortlists/JobSh
 const JobInterviews = React.lazy(() => import('./jdcomponents/JobInterviews/JobInterviews'));
 //ADMINISTRATION
 const Users = React.lazy(() => import('./jdcomponents/Users/Users'));
+const UsersGroups = React.lazy(() => import('./jdcomponents/Users/UsersGroups'));
+const Ministry = React.lazy(() => import('./jdcomponents/ministries/ministry'));
+//
 //REPORTS
 const Reports = React.lazy(() => import('./jdcomponents/Reports/Reports'));
 
@@ -29,44 +32,56 @@ const routes = [
     {
         path: '/jobgroup',
         exact: true,
-        name: 'Resolutions',
+        name: 'Job Group',
         component: JobGroups
     },
     {
         path: '/jobpositions',
         exact: true,
-        name: 'Resolutions',
+        name: 'Job Position',
         component: JobPositions
     },
     {
         path: '/jobvacancies',
         exact: true,
-        name: 'Resolutions',
+        name: 'Vacancies',
         component: JobVacancies
     },
     {
         path: '/jobaplicants',
         exact: true,
-        name: 'Resolutions',
+        name: 'Job Applicants',
         component: JobApplications
     },
     {
         path: '/jobshortlists',
         exact: true,
-        name: 'Resolutions',
+        name: 'Shortlists',
         component: JobShortlist
     },
     {
         path: '/jobinterviews',
         exact: true,
-        name: 'Resolutions',
+        name: 'INterviews',
         component: JobInterviews
+    },
+    {
+        path: '/ministry',
+        exact: true,
+        name: 'Ministry',
+        component: Ministry
     },
     {
         path: '/users',
         exact: true,
-        name: 'Resolutions',
+        name: 'Users',
         component: Users
+    },
+    {
+        path: '/usergroups',
+        exact: true,
+        name: 'User Groups',
+        component: UsersGroups
     },
     {
         path: '/reports',

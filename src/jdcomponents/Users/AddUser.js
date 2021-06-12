@@ -6,14 +6,12 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import useState from 'react-usestateref';
-import {Button, Divider, Dropdown, Form, Icon, Label, List, Popup} from 'semantic-ui-react';
+import {Button, Form, Popup, Select} from 'semantic-ui-react';
 import Aux from '../../hoc/_Aux';
 import BackendService from "../../services/BackendService";
-import {Col, Row} from "react-bootstrap";
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
+import LoadingOverlay from 'react-loading-overlay'
+import ClipLoader from "react-spinners/PropagateLoader";
 
-const MySwal = withReactContent(Swal);
 const FETCH_LDAP_DETAILS = process.env.REACT_APP_KB_PORTAL_USER_FETCHADDETIALS;
 const CREATE_USER = process.env.REACT_APP_KB_PORTAL_USER_CREATE;
 const UPDATE_USER = process.env.REACT_APP_KB_PORTAL_USER_UPDATE;
@@ -41,6 +39,8 @@ const useStyles = makeStyles((theme) => ({
 const AddUser = (props) => {
     const classes = useStyles();
     const [open, setOpen] = useState(false);
+    const [loading, setLoading, loadingRef] = useState(false);
+    const [color, setColor] = useState("#60991f");
     const [mounted, setMount] = useState(false);
     const [fullWidth, setFullWidth] = useState(true);
     const [maxWidth, setMaxWidth] = useState('sm');
@@ -220,39 +220,27 @@ const AddUser = (props) => {
                     onClose={handleClose}
                     aria-labelledby="max-width-dialog-title"
                 >
-                    <DialogTitle
-                        id="max-width-dialog-title">{props?.action === 'add' ? "Add User" : "Edit User"}</DialogTitle>
-                    <DialogContent>
-                        <Row>
-                            <Col>
-                                <Form>
-                                    <Form.Group>
-                                        <Form.Input
-                                            label="Windows Username"
-                                            placeholder="Windows Username"
-                                            name="username"
-                                            error={userValuesErrorsRef.current?.username === '' ? false : {
-                                                content: userValuesErrorsRef.current?.username,
-                                                pointing: 'below'
-                                            }}
-                                            value={userValuesRef.current?.username}
-                                            onChange={changeHandler}
-                                        />
-                                        <Form.Button
-                                            positive
-                                            label="Fetch A.D. User Details..."
-                                            content="Fetch..."
-                                            onClick={fetchADDetails}
-                                        />
+                    <LoadingOverlay
+                        active={loadingRef.current}
+                        spinner={<ClipLoader color={color} loading={loadingRef.current}/>}
+                    >
+                        <DialogTitle
+                            id="max-width-dialog-title">{props?.action === 'add' ? "Add User" : "Edit User"}</DialogTitle>
+                        <DialogContent>
 
-                                    </Form.Group>
-                                </Form>
-                            </Col>
-                        </Row>
-                        <Divider/>
-                        <Form>
-                            <Row>
-                                <Col>
+                            <Form>
+                                <Form.Group widths='equal'>
+                                    <Form.Input
+                                        label="Username"
+                                        placeholder="Username"
+                                        name="username"
+                                        error={userValuesErrorsRef.current?.username === '' ? false : {
+                                            content: userValuesErrorsRef.current?.username,
+                                            pointing: 'below'
+                                        }}
+                                        value={userValuesRef.current?.username}
+                                        onChange={changeHandler}
+                                    />
                                     <Form.Input
                                         fluid
                                         label="First name"
@@ -264,8 +252,7 @@ const AddUser = (props) => {
                                         }} value={userValuesRef.current?.firstName}
                                         onChange={changeHandler}
                                     />
-                                </Col>
-                                <Col>
+
                                     <Form.Input
                                         fluid
                                         label="Last name"
@@ -277,12 +264,21 @@ const AddUser = (props) => {
                                         }} value={userValuesRef.current?.lastName}
                                         onChange={changeHandler}
                                     />
-                                </Col>
-                            </Row>
 
-                            <Divider/>
-                            <Row>
-                                <Col>
+
+                                </Form.Group>
+                                <Form.Group widths='equal'>
+                                    <Form.Input
+                                        fluid
+                                        label="phone"
+                                        placeholder="phone"
+                                        name="email"
+                                        error={userValuesErrorsRef.current?.email === '' ? false : {
+                                            content: userValuesErrorsRef.current?.email,
+                                            pointing: 'below'
+                                        }} value={userValuesRef.current?.email}
+                                        onChange={changeHandler}
+                                    />
                                     <Form.Input
                                         fluid
                                         label="Email"
@@ -294,12 +290,12 @@ const AddUser = (props) => {
                                         }} value={userValuesRef.current?.email}
                                         onChange={changeHandler}
                                     />
-                                </Col>
-                                <Col>
-                                    <Label>
-                                        User Status
-                                    </Label>
-                                    <Dropdown
+
+                                </Form.Group>
+                                <Form.Group widths='equal'>
+                                    <Form.Field
+                                        control={Select}
+                                        label='User Status'
                                         placeholder="User Status"
                                         name="userStatus"
                                         validators={['required']}
@@ -315,17 +311,12 @@ const AddUser = (props) => {
                                             key: 'inactive', value: false, text: 'In-Active'
                                         }]}
                                     />
-                                </Col>
-                            </Row>
-                            <Divider/>
-                            <Row>
-                                <Col>
-                                    <Label>
-                                        User Role
-                                    </Label>
-                                    <Dropdown
+
+                                    <Form.Field
+                                        control={Select}
                                         placeholder="User Role"
                                         name="userRole"
+                                        label='User Role'
                                         search
                                         error={userValuesErrorsRef.current?.userRole === '' ? false : true}
                                         selection
@@ -334,53 +325,33 @@ const AddUser = (props) => {
                                         onChange={handleRoleChange}
                                         options={allRolesref.current}
                                     />
-                                </Col>
-                                <Col>
-                                    <List>
-                                        {rolePermissionsRef.current && (rolePermissionsRef.current.map((role, index) => {
-                                            const key = index + (new Date()).getTime().toString(36) + JSON.parse(role)?.perm;
-                                            return (
-                                                <>
-                                                    <List.Item key={stringToHash(key)} as='a'>
-                                                        <Icon name='check circle'/>
-                                                        <List.Content key={key}>
-                                                            <List.Header>{JSON.parse(role)?.perm}</List.Header>
-                                                        </List.Content>
-                                                    </List.Item>
-                                                </>
-                                            )
-                                        }))
-                                        }
 
-                                    </List>
-                                </Col>
+                                </Form.Group>
+                            </Form>
 
-                            </Row>
-                            <Divider/>
-
-                        </Form>
-
-                    </DialogContent>
-                    <DialogActions>
-                        <Button.Group>
-                            <Button
-                                disabled={isSubmittedRef.current}
-                                type="submit"
-                                onClick={saveUser}
-                                positive
-                            >
-                                Save
-                            </Button>
-                            <Button onClick={resetBtn}>Reset</Button>
-                            <Button onClick={handleClose} primary>
-                                Close
-                            </Button>
-                        </Button.Group>
-                    </DialogActions>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button.Group>
+                                <Button
+                                    disabled={isSubmittedRef.current}
+                                    type="submit"
+                                    onClick={saveUser}
+                                    positive
+                                >
+                                    Save
+                                </Button>
+                                <Button onClick={resetBtn}>Reset</Button>
+                                <Button onClick={handleClose} primary>
+                                    Close
+                                </Button>
+                            </Button.Group>
+                        </DialogActions>
+                    </LoadingOverlay>
                 </Dialog>
             </React.Fragment>
         </Aux>
-    );
+    )
+        ;
 };
 AddUser.propTypes = {
     modalOpen: PropTypes.bool.isRequired,

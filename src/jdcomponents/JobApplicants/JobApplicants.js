@@ -19,7 +19,7 @@ import constants from './constants'
 
 const columns = constants.tableColumns;
 
-const FIlter = React.lazy(() => import('./FIlter'));
+const Filterapplicant = React.lazy(() => import('./filterapplicant'));
 
 
 const useStyles = makeStyles({
@@ -162,7 +162,7 @@ const JobApplicants = () => {
                                                         />
                                                     </InputGroup.Append>
                                                     <InputGroup.Append>
-                                                        <FIlter // The invisible modal itself
+                                                        <Filterapplicant // The invisible modal itself
                                                             key="modal1"
                                                             action={"add"}
                                                             modalOpen={modalOpenref.current}
@@ -252,7 +252,7 @@ const JobApplicants = () => {
                                                                             );
                                                                         })}
                                                                         <TableCell key={row.id + '' + index + 1}>
-                                                                            <FIlter // The invisible modal itself
+                                                                            <Filterapplicant // The invisible modal itself
                                                                                 key={row.id + '' + index + 7}
                                                                                 action={"edit"}
                                                                                 modalOpen={modalOpenref.current}

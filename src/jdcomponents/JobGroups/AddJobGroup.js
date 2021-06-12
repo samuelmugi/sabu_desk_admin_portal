@@ -6,14 +6,12 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import useState from 'react-usestateref';
-import {Button, Divider, Dropdown, Form, Icon, Label, List, Popup} from 'semantic-ui-react';
+import {Button, Form, Popup} from 'semantic-ui-react';
 import Aux from '../../hoc/_Aux';
 import BackendService from "../../services/BackendService";
-import {Col, Row} from "react-bootstrap";
-import withReactContent from 'sweetalert2-react-content';
-import Swal from 'sweetalert2';
+import LoadingOverlay from 'react-loading-overlay'
+import ClipLoader from "react-spinners/PropagateLoader";
 
-const MySwal = withReactContent(Swal);
 const FETCH_LDAP_DETAILS = process.env.REACT_APP_KB_PORTAL_USER_FETCHADDETIALS;
 const CREATE_USER = process.env.REACT_APP_KB_PORTAL_USER_CREATE;
 const UPDATE_USER = process.env.REACT_APP_KB_PORTAL_USER_UPDATE;
@@ -40,6 +38,8 @@ const useStyles = makeStyles((theme) => ({
 
 const AddJobGroup = (props) => {
     const classes = useStyles();
+    const [loading, setLoading, loadingRef] = useState(false);
+    const [color, setColor] = useState("#60991f");
     const [open, setOpen] = useState(false);
     const [mounted, setMount] = useState(false);
     const [fullWidth, setFullWidth] = useState(true);
@@ -207,7 +207,6 @@ const AddJobGroup = (props) => {
                         (props?.action === 'add'
                             ? (<Button positive onClick={handleClickOpen} icon="add"/>)
                             : (<Button onClick={handleClickOpen} icon="edit"/>))
-
                     }
                 />
 
@@ -220,144 +219,64 @@ const AddJobGroup = (props) => {
                     onClose={handleClose}
                     aria-labelledby="max-width-dialog-title"
                 >
+                    <LoadingOverlay
+                    active={loadingRef.current}
+                    spinner={<ClipLoader color={color} loading={loadingRef.current}/>}
+                >
                     <DialogTitle
                         id="max-width-dialog-title">{props?.action === 'add' ? "Add JobGroup" : "Edit JobGroup"}</DialogTitle>
                     <DialogContent>
-                        <Row>
-                            <Col>
-                                <Form>
-                                    <Form.Group>
-                                        <Form.Input
-                                            label="Windows JobGroupname"
-                                            placeholder="Windows JobGroupname"
-                                            name="username"
-                                            error={userValuesErrorsRef.current?.username === '' ? false : {
-                                                content: userValuesErrorsRef.current?.username,
-                                                pointing: 'below'
-                                            }}
-                                            value={userValuesRef.current?.username}
-                                            onChange={changeHandler}
-                                        />
-                                        <Form.Button
-                                            positive
-                                            label="Fetch A.D. JobGroup Details..."
-                                            content="Fetch..."
-                                            onClick={fetchADDetails}
-                                        />
-
-                                    </Form.Group>
-                                </Form>
-                            </Col>
-                        </Row>
-                        <Divider/>
                         <Form>
-                            <Row>
-                                <Col>
-                                    <Form.Input
-                                        fluid
-                                        label="First name"
-                                        placeholder="First name"
-                                        name="firstName"
-                                        error={userValuesErrorsRef.current?.firstName === '' ? false : {
-                                            content: userValuesErrorsRef.current?.firstName,
-                                            pointing: 'below'
-                                        }} value={userValuesRef.current?.firstName}
-                                        onChange={changeHandler}
-                                    />
-                                </Col>
-                                <Col>
-                                    <Form.Input
-                                        fluid
-                                        label="Last name"
-                                        placeholder="Last name"
-                                        name="lastName"
-                                        error={userValuesErrorsRef.current?.lastName === '' ? false : {
-                                            content: userValuesErrorsRef.current?.lastName,
-                                            pointing: 'below'
-                                        }} value={userValuesRef.current?.lastName}
-                                        onChange={changeHandler}
-                                    />
-                                </Col>
-                            </Row>
-
-                            <Divider/>
-                            <Row>
-                                <Col>
-                                    <Form.Input
-                                        fluid
-                                        label="Email"
-                                        placeholder="Email"
-                                        name="email"
-                                        error={userValuesErrorsRef.current?.email === '' ? false : {
-                                            content: userValuesErrorsRef.current?.email,
-                                            pointing: 'below'
-                                        }} value={userValuesRef.current?.email}
-                                        onChange={changeHandler}
-                                    />
-                                </Col>
-                                <Col>
-                                    <Label>
-                                        JobGroup Status
-                                    </Label>
-                                    <Dropdown
-                                        placeholder="JobGroup Status"
-                                        name="userStatus"
-                                        validators={['required']}
-                                        onChange={(e, {value}) => {
-                                            setJobGroupValues((prevValues) => {
-                                                return {...prevValues, userStatus: value};
-                                            })
-                                        }}
-                                        defaultValue={userValuesRef.current?.userStatus}
-                                        error={userValuesErrorsRef.current?.userStatus === '' ? false : true}
-                                        selection
-                                        options={[{key: 'active', value: true, text: 'Active'}, {
-                                            key: 'inactive', value: false, text: 'In-Active'
-                                        }]}
-                                    />
-                                </Col>
-                            </Row>
-                            <Divider/>
-                            <Row>
-                                <Col>
-                                    <Label>
-                                        JobGroup Role
-                                    </Label>
-                                    <Dropdown
-                                        placeholder="JobGroup Role"
-                                        name="userRole"
-                                        search
-                                        error={userValuesErrorsRef.current?.userRole === '' ? false : true}
-                                        selection
-                                        defaultValue={JSON.stringify(userValuesRef.current?.userRole)}
-
-                                        onChange={handleRoleChange}
-                                        options={allRolesref.current}
-                                    />
-                                </Col>
-                                <Col>
-                                    <List>
-                                        {rolePermissionsRef.current && (rolePermissionsRef.current.map((role, index) => {
-                                            const key = index + (new Date()).getTime().toString(36) + JSON.parse(role)?.perm;
-                                            return (
-                                                <>
-                                                    <List.Item key={stringToHash(key)} as='a'>
-                                                        <Icon name='check circle'/>
-                                                        <List.Content key={key}>
-                                                            <List.Header>{JSON.parse(role)?.perm}</List.Header>
-                                                        </List.Content>
-                                                    </List.Item>
-                                                </>
-                                            )
-                                        }))
-                                        }
-
-                                    </List>
-                                </Col>
-
-                            </Row>
-                            <Divider/>
-
+                            <Form.Group widths='equal'>
+                                <Form.Input
+                                    label="Job Group Name"
+                                    placeholder="Job Group Name"
+                                    name="groupname"
+                                />
+                            </Form.Group>
+                            <Form.Group widths='equal'>
+                                <Form.Input
+                                    label="Job Group Description"
+                                    placeholder="Job Group Description"
+                                    name="jobgroupdescription"
+                                />
+                            </Form.Group>
+                            <Form.Group widths='equal'>
+                                <Form.Input
+                                    label="Min Salary"
+                                    placeholder="Min Salary"
+                                    name="MinSalary"
+                                />
+                                <Form.Input
+                                    label="Max Salary"
+                                    placeholder="Max Salary"
+                                    name="MaxSalary"
+                                />
+                            </Form.Group>
+                            <Form.Group widths='equal'>
+                                <Form.Input
+                                    label="House Allowance"
+                                    placeholder="House Allowance"
+                                    name="HouseAllowance"
+                                />
+                                <Form.Input
+                                    label="Commuter Allowance"
+                                    placeholder="Commuter Allowance"
+                                    name="CommuterAllowance"
+                                />
+                            </Form.Group>
+                            <Form.Group widths='equal'>
+                                <Form.Input
+                                    label="Extrenuous Allowance"
+                                    placeholder="Extrenuous Allowance"
+                                    name="ExtrenuousAllowance"
+                                />
+                                <Form.Input
+                                    label="Risk Allowance"
+                                    placeholder="Risk Allowance"
+                                    name="RiskAllowance"
+                                />
+                            </Form.Group>
                         </Form>
 
                     </DialogContent>
@@ -377,6 +296,7 @@ const AddJobGroup = (props) => {
                             </Button>
                         </Button.Group>
                     </DialogActions>
+                </LoadingOverlay>
                 </Dialog>
             </React.Fragment>
         </Aux>

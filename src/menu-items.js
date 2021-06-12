@@ -108,6 +108,30 @@ export default {
                             url: '/users',
                             icon: 'feather icon-users',
                             role: 'dashboard'
+                        },
+                        {
+                            id: 'ui-admin3',
+                            title: 'User Groups',
+                            type: 'item',
+                            url: '/usergroups',
+                            icon: 'feather icon-users',
+                            role: 'dashboard'
+                        }
+                    ]
+                },
+                {
+                    id: 'ui-admin4',
+                    title: 'Ministry',
+                    type: 'collapse',
+                    icon: 'feather icon-droplet',
+                    children: [
+                        {
+                            id: 'ui-admin5',
+                            title: 'Ministries',
+                            type: 'item',
+                            url: '/ministry',
+                            icon: 'feather icon-crosshair',
+                            role: 'dashboard'
                         }
                     ]
                 }

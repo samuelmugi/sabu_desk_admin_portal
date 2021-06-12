@@ -6,7 +6,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import useState from 'react-usestateref';
-import {Button, Form, Popup} from 'semantic-ui-react';
+import {Button, Form, Popup, Select} from 'semantic-ui-react';
 import Aux from '../../hoc/_Aux';
 import BackendService from "../../services/BackendService";
 import LoadingOverlay from 'react-loading-overlay'
@@ -36,18 +36,18 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const AddPosition = (props) => {
+const AddMinistry = (props) => {
     const classes = useStyles();
+    const [open, setOpen] = useState(false);
     const [loading, setLoading, loadingRef] = useState(false);
     const [color, setColor] = useState("#60991f");
-    const [open, setOpen] = useState(false);
     const [mounted, setMount] = useState(false);
     const [fullWidth, setFullWidth] = useState(true);
     const [maxWidth, setMaxWidth] = useState('sm');
     const [allRoles, setAllRoles, allRolesref] = useState(props?.allRoles);
     const [isSubmitted, setSubmitted, isSubmittedRef] = useState(false);
     const [rolePermissions, setRolePermissions, rolePermissionsRef] = useState([]);
-    const [userValuesErrors, setJobGroupValuesErrors, userValuesErrorsRef] = useState({
+    const [userValuesErrors, setUserValuesErrors, userValuesErrorsRef] = useState({
         username: '',
         email: '',
         firstName: '',
@@ -55,7 +55,7 @@ const AddPosition = (props) => {
         userRole: '',
         userStatus: ''
     });
-    const [userValues, setJobGroupValues, userValuesRef] = useState(props?.valueIntoModal);
+    const [userValues, setUserValues, userValuesRef] = useState(props?.valueIntoModal);
     useEffect(() => {
         (async function () {
             if (props.action === 'edit') {
@@ -66,12 +66,12 @@ const AddPosition = (props) => {
     }, [userValues]);
 
     const changeHandler = (e) => {
-        setJobGroupValues((prevValues) => {
+        setUserValues((prevValues) => {
             return {...prevValues, [e.target.name]: e.target.value};
         });
     };
-    const updateJobGroupValues = (name, value) => {
-        setJobGroupValues((prevValues) => {
+    const updateUserValues = (name, value) => {
+        setUserValues((prevValues) => {
             return {...prevValues, [name]: value};
         });
     };
@@ -80,7 +80,7 @@ const AddPosition = (props) => {
 
         const user = userValuesRef.current;
         const userErrors = userValuesErrorsRef.current;
-        setJobGroupValuesErrors({
+        setUserValuesErrors({
             username: '',
             email: '',
             firstName: '',
@@ -91,7 +91,7 @@ const AddPosition = (props) => {
         Object.keys(userErrors).map((key) => {
             if (user[key] === null || user[key] === '' || user[key] === undefined) {
                 console.log(key + ' key and value is ' + user[key]);
-                setJobGroupValuesErrors((prevValues) => {
+                setUserValuesErrors((prevValues) => {
                     return {...prevValues, [key]: key + ' is required'};
                 });
                 hasErrors = true
@@ -101,7 +101,7 @@ const AddPosition = (props) => {
 
         return hasErrors;
     }
-    const saveJobGroup = async (e) => {
+    const saveUser = async (e) => {
         e.preventDefault();
         setSubmitted(true);
         const hasErrors = validateValues();
@@ -131,7 +131,7 @@ const AddPosition = (props) => {
     const resetBtn = async () => {
         setSubmitted(false);
         setRolePermissions([]);
-        setJobGroupValues({
+        setUserValues({
             username: '',
             email: '',
             firstName: '',
@@ -139,7 +139,7 @@ const AddPosition = (props) => {
             userRole: '',
             userStatus: ''
         });
-        setJobGroupValuesErrors({
+        setUserValuesErrors({
             username: '',
             email: '',
             firstName: '',
@@ -157,16 +157,16 @@ const AddPosition = (props) => {
             );
             const data = JSON.parse(response.data?.payload);
             const username = data?.accountname;
-            updateJobGroupValues('username', username);
+            updateUserValues('username', username);
 
             const firstname = data?.firstname;
-            updateJobGroupValues('firstName', firstname);
+            updateUserValues('firstName', firstname);
 
             const email = data?.email;
-            updateJobGroupValues('email', email);
+            updateUserValues('email', email);
 
             const lastname = data?.lastname;
-            updateJobGroupValues('lastName', lastname);
+            updateUserValues('lastName', lastname);
 
             console.log('userValuesRef==' + JSON.stringify(userValuesRef.current));
         } catch (e) {
@@ -176,7 +176,7 @@ const AddPosition = (props) => {
 
     const handleRoleChange = async (e, {value}) => {
         setRolePermissions(JSON.parse(value)?.permissions);
-        updateJobGroupValues('userRole', JSON.parse(value));
+        updateUserValues('userRole', JSON.parse(value));
     };
     const handleClickOpen = () => {
         setOpen(true);
@@ -202,11 +202,12 @@ const AddPosition = (props) => {
         <Aux>
             <React.Fragment>
                 <Popup
-                    content={props?.action === 'add' ? "Add Job Position" : "Edit Job Position"}
+                    content={props?.action === 'add' ? "Add Ministry" : "Edit Ministry"}
                     trigger={
                         (props?.action === 'add'
                             ? (<Button positive onClick={handleClickOpen} icon="add"/>)
                             : (<Button onClick={handleClickOpen} icon="edit"/>))
+
                     }
                 />
 
@@ -218,88 +219,79 @@ const AddPosition = (props) => {
                     open={open}
                     onClose={handleClose}
                     aria-labelledby="max-width-dialog-title"
-                ><LoadingOverlay
-                    active={loadingRef.current}
-                    spinner={<ClipLoader color={color} loading={loadingRef.current}/>}
                 >
-                    <DialogTitle
-                        id="max-width-dialog-title">{props?.action === 'add' ? "Add Job Position" : "Edit Job Position"}</DialogTitle>
-                    <DialogContent>
-                        <Form>
-                            <Form.Group widths='equal'>
-                                <Form.Input
-                                    label="Department"
-                                    placeholder="Department"
-                                    name="Department"
-                                />
-                            </Form.Group>
-                            <Form.Group widths='equal'>
-                                <Form.Input
-                                    label="Job Group"
-                                    placeholder="Job Group"
-                                    name="jobgroupdescription"
-                                />
+                    <LoadingOverlay
+                        active={loadingRef.current}
+                        spinner={<ClipLoader color={color} loading={loadingRef.current}/>}
+                    >
+                        <DialogTitle
+                            id="max-width-dialog-title">{props?.action === 'add' ? "Add Ministry" : "Edit Ministry"}</DialogTitle>
+                        <DialogContent>
+                            <Form>
+                                <Form.Group widths='equal'>
+                                    <Form.Input
+                                        fluid
+                                        label="Ministry Name"
+                                        placeholder="Ministry Name"
+                                        name="MinistryName"
+                                        error={userValuesErrorsRef.current?.firstName === '' ? false : {
+                                            content: userValuesErrorsRef.current?.firstName,
+                                            pointing: 'below'
+                                        }} value={userValuesRef.current?.firstName}
+                                        onChange={changeHandler}
+                                    />
+                                </Form.Group>
+                                <Form.Group widths='equal'>
+                                    <Form.Input
+                                        fluid
+                                        label="Ministry Description"
+                                        placeholder="Ministry Description"
+                                        name="MinistryDescription"
+                                        error={userValuesErrorsRef.current?.lastName === '' ? false : {
+                                            content: userValuesErrorsRef.current?.lastName,
+                                            pointing: 'below'
+                                        }} value={userValuesRef.current?.lastName}
+                                        onChange={changeHandler}
+                                    />
 
-                                <Form.Input
-                                    label="Terms Of Service"
-                                    placeholder="Terms Of Service"
-                                    name="MinSalary"
-                                />
-                            </Form.Group>
-                            <Form.Group widths='equal'>
-                                <Form.Input
-                                    label="Job Title"
-                                    placeholder="Job Title"
-                                    name="MaxSalary"
-                                />
-                            </Form.Group>
-                            <Form.Group widths='equal'>
-                                <Form.Input
-                                    label="Job Description"
-                                    placeholder="Job Description"
-                                    name="HouseAllowance"
-                                />
 
-                            </Form.Group>
-                            <Form.Group widths='equal'>
-                                <Form.Input
-                                    label="Job Qualification"
-                                    placeholder="Job Qualification"
-                                    name="CommuterAllowance"
-                                />
-                            </Form.Group>
-                        </Form>
+                                </Form.Group>
 
-                    </DialogContent>
-                    <DialogActions>
-                        <Button.Group>
-                            <Button
-                                disabled={isSubmittedRef.current}
-                                type="submit"
-                                onClick={saveJobGroup}
-                                positive
-                            >
-                                Save
-                            </Button>
-                            <Button onClick={resetBtn}>Reset</Button>
-                            <Button onClick={handleClose} primary>
-                                Close
-                            </Button>
-                        </Button.Group>
-                    </DialogActions>
-                </LoadingOverlay>
+
+                            </Form>
+
+
+                        </DialogContent>
+                        <DialogActions>
+                            <Button.Group>
+                                <Button
+                                    disabled={isSubmittedRef.current}
+                                    type="submit"
+                                    onClick={saveUser}
+                                    positive
+                                >
+                                    Save
+                                </Button>
+                                <Button onClick={resetBtn}>Reset</Button>
+                                <Button onClick={handleClose} primary>
+                                    Close
+                                </Button>
+                            </Button.Group>
+                        </DialogActions>
+                    </LoadingOverlay>
                 </Dialog>
             </React.Fragment>
         </Aux>
-    );
+    )
+        ;
 };
-AddPosition.propTypes = {
+AddMinistry.propTypes = {
     modalOpen: PropTypes.bool.isRequired,
     action: PropTypes.string.isRequired,
     valueIntoModal: PropTypes.object.isRequired,
     allRoles: PropTypes.array.isRequired,
 };
 
-AddPosition.defaultProps = {};
+AddMinistry.defaultProps = {};
 
-export default AddPosition;
+export default AddMinistry;

@@ -17,9 +17,9 @@ import './Users.scss';
  import Aux from '../../hoc/_Aux';
  import constants from './constants'
 
- const columns = constants.tableColumnsUsers;
+ const columns = constants.tableColumnsUserGroups;
 
- const AddUser = React.lazy(() => import('./AddUser'));
+ const AddUserGroup = React.lazy(() => import('./AddUserGroup'));
 
 
  const useStyles = makeStyles({
@@ -162,7 +162,7 @@ import './Users.scss';
                                                          />
                                                      </InputGroup.Append>
                                                      <InputGroup.Append>
-                                                         <AddUser // The invisible modal itself
+                                                         <AddUserGroup // The invisible modal itself
                                                              key="modal1"
                                                              action={"add"}
                                                              modalOpen={modalOpenref.current}
@@ -252,7 +252,7 @@ import './Users.scss';
                                                                              );
                                                                          })}
                                                                          <TableCell key={row.id + '' + index + 1}>
-                                                                             <AddUser // The invisible modal itself
+                                                                             <AddUserGroup // The invisible modal itself
                                                                                  key={row.id + '' + index + 7}
                                                                                  action={"edit"}
                                                                                  modalOpen={modalOpenref.current}

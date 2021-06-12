@@ -2,7 +2,7 @@
   "name": "recruitment-portal",
   "version": "0.1.0",
   "private": true,
-  "homepage": "http://lite.codedthemes.com/recruitment/auth/signin",
+  "homepage": "https://samuelmugi.github.io/sabu_desk_admin_portal/",
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "^27.1.0",
     "@ckeditor/ckeditor5-react": "^3.0.2",
@@ -24,6 +24,7 @@
     "react": "^16.8.4",
     "react-bootstrap": "^1.0.0-beta.5",
     "react-csv-reader": "^3.3.0",
+    "react-datepicker": "^4.1.1",
     "react-dom": "^16.8.4",
     "react-full-screen": "^0.2.4",
     "react-html-parser": "^2.0.2",
@@ -57,7 +58,9 @@
     "start": "env-cmd -f .env.dev react-scripts start",
     "build": "env-cmd -f .env.prod react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "npm run build&&gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -70,6 +73,7 @@
   ],
   "devDependencies": {
     "@types/underscore": "^1.11.2",
+    "gh-pages": "^3.2.0",
     "react-to-print": "^2.1.1"
   }
 }

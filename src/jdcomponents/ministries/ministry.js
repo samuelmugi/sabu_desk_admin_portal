@@ -1,5 +1,5 @@
  import PropTypes from 'prop-types';
-import './Users.scss';
+import './ministry.scss';
  import React, {useEffect} from 'react';
  import {Card, Col, FormControl, InputGroup, Row} from 'react-bootstrap';
  import {Button, Dimmer, Loader, Segment} from 'semantic-ui-react';
@@ -17,9 +17,9 @@ import './Users.scss';
  import Aux from '../../hoc/_Aux';
  import constants from './constants'
 
- const columns = constants.tableColumnsUsers;
+ const columns = constants.tableColumns;
 
- const AddUser = React.lazy(() => import('./AddUser'));
+ const AddMinistry = React.lazy(() => import('./AddMinistry'));
 
 
  const useStyles = makeStyles({
@@ -35,7 +35,7 @@ import './Users.scss';
  const USER_SEARCH_URL = process.env.REACT_APP_KB_PORTAL_USER_SEARCH;
  const LIST_ALL_ROLES = process.env.REACT_APP_KB_PORTAL_USER_LIST_ALL_ROLES;
 
- const Users = () => {
+ const Ministry = () => {
      const classes = useStyles();
      const [page, setPage, pageRef] = useState(0);
      const [rowsPerPage, setRowsPerPage, rowsPerPageRef] = useState(10);
@@ -162,7 +162,7 @@ import './Users.scss';
                                                          />
                                                      </InputGroup.Append>
                                                      <InputGroup.Append>
-                                                         <AddUser // The invisible modal itself
+                                                         <AddMinistry // The invisible modal itself
                                                              key="modal1"
                                                              action={"add"}
                                                              modalOpen={modalOpenref.current}
@@ -252,7 +252,7 @@ import './Users.scss';
                                                                              );
                                                                          })}
                                                                          <TableCell key={row.id + '' + index + 1}>
-                                                                             <AddUser // The invisible modal itself
+                                                                             <AddMinistry // The invisible modal itself
                                                                                  key={row.id + '' + index + 7}
                                                                                  action={"edit"}
                                                                                  modalOpen={modalOpenref.current}
@@ -284,8 +284,8 @@ import './Users.scss';
      );
  };
 
-Users.propTypes = {};
+Ministry.propTypes = {};
 
-Users.defaultProps = {};
+Ministry.defaultProps = {};
 
-export default Users;
+export default Ministry;

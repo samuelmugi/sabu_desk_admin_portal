@@ -9,8 +9,6 @@ import useState from 'react-usestateref';
 import moment from 'moment';
 import {Bar, BarChart, CartesianGrid, Legend, Tooltip, XAxis, YAxis} from 'recharts';
 
-const AddResolution = React.lazy(() => import('../../kbcomponenets/Resolution/AddResolution'));
-const ViewIssue = React.lazy(() => import('../../kbcomponenets/Resolution/ViewIssue'));
 
 
 function createData(time, amount) {
@@ -164,28 +162,7 @@ const Dashboard = () => {
                                                     className="fa fa-circle text-c-green f-10 m-r-15"/>{moment(issue?.createdOn).format("dddd, MMM Do YYYY")}
                                                 </h6>
                                             </td>
-                                            <td>
 
-                                                <ViewIssue // The invisible modal itself
-                                                    key={issue?.id}
-                                                    modalOpen={modalOpenViewref.current}
-                                                    handleClose={() => {
-                                                        setModalOpenView(false);
-                                                    }}
-                                                    suppressContentEditableWarning={true}
-                                                    valueIntoModal={issue}
-                                                />
-                                            </td>
-                                            <td>
-                                                <AddResolution // The invisible modal itself
-                                                    key={"modaladd" + issue?.id}
-                                                    modalOpen={modalOpenref.current}
-                                                    handleClose={() => {
-                                                        setModalOpen(false);
-                                                    }}
-                                                    valueIntoModal={issue}
-                                                />
-                                            </td>
                                         </tr>
                                     </>);
 
