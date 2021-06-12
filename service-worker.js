@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/sabu_desk_admin_portal/precache-manifest.751610152edffab74257ecdff1c4a5fd.js"
+  "/sabu_desk_admin_portal/precache-manifest.ecec6ed3bd46e0949970cc098d7669e6.js"
 );
 
 self.addEventListener('message', (event) => {
